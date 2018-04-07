@@ -231,9 +231,7 @@ Void TEncCu::init( TEncTop* pcEncTop )
   best_gamma = 0.0001;
   trainer->set_kernel(kernel_type(best_gamma));
   //trainer->set_c(best_c);
-  ativeValidation = true;
   validationSize = 3000;
-  chave = true;
   tempo_inicial = 0;
   gettimeofday(&start, NULL);
   //--
@@ -512,13 +510,9 @@ Void TEncCu::xCompressCU( TComDataCU*& rpcBestCU, TComDataCU*& rpcTempCU, const 
         if(!((TEncTop*)m_pcEncCfg)->isTraining()){
             is2Nx2N = false;
             is2Nx2N = ((*learned_function)(samp) > 0) ? true : false;
-            // cout << is2Nx2N << endl;
+             cout << is2Nx2N << endl;
             rpcBestCU->setPartitionSize(0,SIZE_2Nx2N);
             rpcBestCU->setPredictionMode(0, MODE_INTER);
-            ativeValidation = true;
-            chave = false;
-        }else{
-            chave = true;
         }
         //--
 
@@ -796,7 +790,7 @@ Void TEncCu::xCompressCU( TComDataCU*& rpcBestCU, TComDataCU*& rpcTempCU, const 
               ((TEncTop*) m_pcEncCfg)->calcSVMClassError((int)classification[i], ((*learned_function)(lastSample[i]))> 0 ? 1 : -1);
           }
 
-          if(cont_train % 1000 == 0){
+          if(cont_train % 15000 == 0){
 
               //cout << "Beste Gamma: " << best_gamma << " -- Best C: " << best_c << " -- size " << lastSample.size() <<  endl;
 
@@ -807,8 +801,9 @@ Void TEncCu::xCompressCU( TComDataCU*& rpcBestCU, TComDataCU*& rpcTempCU, const 
               lastSample.erase (lastSample.begin(), lastSample.end());             
               gettimeofday(&end, NULL);
               double temp = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
-              cout << "Amostra: " << cont_train<< " -- Tempo total: " << temp <<  " -- Tempo: " << (temp-tempo_inicial) << " -- N de Erros: " << nErrors << " -- Error Ratio: " << (nErrors / (double)cont_train)*100 << "%" << endl;
+              cout << "Amostra: " << cont_train<< " -- Tempo total: " << temp <<  " -- Tempo: " << (temp-tempo_inicial) << " -- N de Erros: " << nErrors <<  endl;
               tempo_inicial = temp;
+		cout << "saida: " << cont_train << " " << (nErrors / (double)cont_train)*100 << endl;
               cout << "-------------------------------------------" << endl;
           }
        }      
